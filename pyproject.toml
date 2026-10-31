@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rice-auction-tracker"
+version = "0.1.0"
+description = "Tracks Indian government websites for rice auction (OMSS / e-auction) notices and alerts you."
+requires-python = ">=3.11"
+dependencies = [
+  "httpx>=0.27",
+  "selectolax>=0.3",
+  "pydantic>=2.6",
+  "pydantic-settings>=2.2",
+  "typer>=0.12",
+  "pyyaml>=6",
+  "tenacity>=8.2",
+  "pypdf>=4",
+  "anthropic>=0.40",
+]
+
+[project.optional-dependencies]
+browser = ["playwright>=1.44"]
+gcp = ["google-cloud-firestore>=2.16", "google-cloud-storage>=2.16"]
+dev = ["pytest>=8", "respx>=0.21", "ruff>=0.5"]
+
+[project.scripts]
+tracker = "tracker.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["live: hits real websites (run with: pytest -m live)"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]

@@ -1,0 +1,6 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "--build-arg", "WITH_BROWSER=${_WITH_BROWSER}", "-t", "${_IMAGE}", "."]
+images: ["${_IMAGE}"]
+substitutions:
+  _WITH_BROWSER: "0"

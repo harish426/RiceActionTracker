@@ -1,0 +1,11 @@
+# Local container run:  docker compose run --rm tracker run --tier 1
+services:
+  tracker:
+    build: .
+    env_file: .env
+    environment:
+      SQLITE_PATH: /data/tracker.db
+      SNAPSHOT_DIR: /data/snapshots
+    volumes:
+      - ./data:/data
+      - ./config:/app/config   # edit sources.yaml without rebuilding
