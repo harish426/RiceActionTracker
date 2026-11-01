@@ -58,13 +58,19 @@ sources:
     enabled: false
     note: "Official site of Telangana State Cooperative Marketing Federation - add the tenders / e-auction page URL."
 
+  - id: tg-auction-portal
+    name: "Telangana Auction Portal (auction.telangana.gov.in)"
+    url: "https://auction.telangana.gov.in/AuctionsDetailsHome.do"
+    state: "Telangana"
+    tier: 2
+    note: "Supplied by user. Unconfirmed whether it lists rice/maize (search suggests land/asset auctions). The tracker ignores non-grain auctions. Likely server-rendered list; try fetch_mode: browser if test-source shows few items."
+
   - id: tg-civil-supplies
-    name: "Telangana Civil Supplies Corporation (official site)"
-    url: "https://example.invalid/REPLACE-with-tscsc-tenders-page"
+    name: "Telangana Civil Supplies Corporation (tgscscl)"
+    url: "https://tgscscl.telangana.gov.in/"
     state: "Telangana"
     tier: 1
-    enabled: false
-    note: "Rice (CMR/paddy) sale tenders. Add the tenders page URL."
+    note: "Official site; rice/paddy tenders. Bids go through eprocurement.telangana.gov.in. Find the tenders page and put that URL here for better results."
 
   - id: tg-marketing
     name: "Telangana State Agricultural Marketing (mandi / market yards)"
