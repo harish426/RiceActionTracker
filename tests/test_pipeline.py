@@ -51,7 +51,7 @@ def test_same_auction_on_second_site_is_merged_not_duplicated(deps, notifier):
     from test_classify import FakeClient
     from tracker.classify import LLMClassifier
 
-    payload = {"is_rice_auction": True, "confidence": 0.9, "summary": "s", "state": "Punjab",
+    payload = {"is_relevant": True, "commodity": "rice", "confidence": 0.9, "summary": "s", "state": "Punjab",
                "auction_date": "2026-11-12", "quantity": "5000 MT"}
     deps.classifier = LLMClassifier(FakeClient(payload), "m")
     a = Source(id="a", name="A", url="https://a.example/")
@@ -150,3 +150,17 @@ def test_deliver_alert_marks_notified(deps):
 
     a = Alert(key="z", title="t", urls=["u"], source_names=["s"])
     assert deliver_alert(deps, a) and deps.storage.get_alert("z").notified
+
+
+def test_rice_and_maize_share_one_channel_with_distinct_labels(deps, source, notifier):
+    base = "<ul><li><a href='/old'>Old link</a></li></ul>"
+    deps.fetcher = FakeFetcher({source.url: base})
+    process_source(deps, source)
+    deps.fetcher.pages[source.url] = base + (
+        "<li><a href='/m.pdf'>Telangana MARKFED e-auction of maize 1,000 MT 15/11/2026</a></li>"
+        "<li><a href='/r.pdf'>FCI OMSS rice e-auction 20/11/2026</a></li>"
+        "<li><a href='/w.pdf'>FCI OMSS wheat e-auction, reserve price Rs 2,500</a></li>")
+    r = process_source(deps, source)
+    assert r.alerts == 2  # wheat ignored
+    subjects = sorted(m.subject.split("]")[0] for m in notifier.sent)
+    assert subjects == ["[MAIZE", "[RICE"]

@@ -1,8 +1,10 @@
-# Rice Auction Tracker
+# Rice & Maize Auction Tracker
 
-Watches Indian government websites (FCI, state civil-supplies departments, …) for **rice auction
-(OMSS / e-auction) notices** and alerts you on **Telegram** and **email** the moment a new one
-appears. Runs on your laptop for testing and on Google Cloud (Cloud Run Jobs + Scheduler) for
+Watches Indian government, cooperative and market websites (FCI, NAFED, Telangana MARKFED and
+Civil Supplies, …) for **rice and maize (corn) auction, sale and tender notices** and alerts you
+on **Telegram** and/or **email** the moment a new one appears. Every alert is labelled, e.g.
+`[RICE] Auction: …` or `[MAIZE] Tender: …`, so one channel serves both. Current focus: **Telangana**
+(maize for ethanol use + rice). Which grains are tracked is a setting (`COMMODITIES=rice,maize`). Runs on your laptop for testing and on Google Cloud (Cloud Run Jobs + Scheduler) for
 24×7 tracking. Same code, same config files.
 
 ## How it works
@@ -20,10 +22,13 @@ technology works. Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 ```bash
 make setup                 # creates .venv and installs everything
 cp .env.example .env       # optional: add Telegram / email / Anthropic key later
-make test                  # 83 offline tests, should all pass
+make test                  # 92 offline tests, should all pass
 .venv/bin/tracker test-source https://fci.gov.in/   # see what the tracker sees on a page
 .venv/bin/tracker run                               # one tracking pass (alerts print to terminal)
 ```
+
+**Windows (no `make`)**: use `python -m venv .venv`, then `.venv\Scripts\pip install -e ".[dev,gcp]"`,
+`.venv\Scripts\python -m pytest`, `.venv\Scripts\tracker run`. See [docs/LOCAL.md](docs/LOCAL.md).
 
 ## Documentation
 
@@ -50,5 +55,6 @@ make test                  # 83 offline tests, should all pass
 - URLs in `config/sources.yaml` are starting points; the build environment could not reach the
   real sites, so **verify each with `tracker test-source`** before relying on it.
 - Government sites publish no push feed, so "real-time" means polling every 15 min (tier 1).
+- Wheat and other grains are intentionally ignored. Mandi *price* tracking (e-NAM) is not built yet.
 - Scanned (image-only) PDFs are not read yet (OCR is a planned extension).
 - Without `ANTHROPIC_API_KEY` the tracker falls back to keyword matching, which is less accurate.

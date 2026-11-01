@@ -36,7 +36,7 @@ def _fetcher(settings: Settings):
 
 def build_deps(settings: Settings) -> Deps:
     return Deps(settings=settings, storage=build_storage(settings), fetcher=_fetcher(settings),
-                classifier=build_classifier(settings.anthropic_api_key, settings.llm_model),
+                classifier=build_classifier(settings.anthropic_api_key, settings.llm_model, settings.commodity_keys),
                 notifier=build_notifier(settings), snapshots=build_snapshots(settings))
 
 
@@ -90,22 +90,22 @@ def test_source(url: str, verify_ssl: bool = True, limit: int = 40,
     if save_html:
         Path(save_html).write_text(fetched.text, encoding="utf-8")
     cands = extract_candidates(fetched.text, fetched.final_url, "adhoc")
-    classifier = build_classifier(settings.anthropic_api_key, settings.llm_model)
-    from tracker.classify import is_auction_like
+    classifier = build_classifier(settings.anthropic_api_key, settings.llm_model, settings.commodity_keys)
+    from tracker.commodities import is_action_like
 
     typer.echo(f"Fetched via {fetched.used}, HTTP {fetched.status}, {len(cands)} candidates "
                f"(classifier: {type(classifier).__name__})\n")
     hits = 0
     for c in cands:
-        if is_auction_like(c.text):
+        if is_action_like(c.text):
             res = classifier.classify(c)
-            mark = "RICE-AUCTION" if res.is_rice_auction else "auction-ish "
-            hits += res.is_rice_auction
+            mark = f"MATCH:{res.commodity}" if res.is_relevant else "auction-ish"
+            hits += res.is_relevant
             typer.echo(f"[{mark}] {c.title[:90]}\n    {c.url}")
     typer.echo(f"\nShowing first {limit} of {len(cands)} candidates:")
     for c in cands[:limit]:
         typer.echo(f"  - {c.title[:90]}")
-    typer.echo(f"\n{hits} rice-auction-like items.")
+    typer.echo(f"\n{hits} matching items for: {', '.join(settings.commodity_keys)}.")
 
 
 @app.command("list-sources")

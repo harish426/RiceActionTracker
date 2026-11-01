@@ -54,9 +54,11 @@ class Candidate(BaseModel):
 
 
 class Classification(BaseModel):
-    """Result of deciding whether a candidate is a rice auction notice."""
+    """Result of deciding whether a candidate is a notice for a tracked commodity."""
 
-    is_rice_auction: bool
+    is_relevant: bool
+    commodity: str | None = None  # rice | maize
+    notice_type: str = "auction"  # auction | sale | tender | market
     confidence: float = 0.0
     method: str = "keyword"  # keyword | llm
     title: str = ""
@@ -70,10 +72,12 @@ class Classification(BaseModel):
 
 
 class Alert(BaseModel):
-    """A rice-auction notice we intend to tell the user about."""
+    """A notice we intend to tell the user about."""
 
     key: str
     title: str
+    commodity: str | None = None
+    notice_type: str = "auction"
     urls: list[str] = Field(default_factory=list)
     source_names: list[str] = Field(default_factory=list)
     state: str | None = None

@@ -4,6 +4,19 @@
 
 Requires Python 3.11+.
 
+**Windows (Command Prompt, no `make`):**
+
+```bat
+python -m venv .venv
+.venv\Scripts\pip install -e ".[dev,gcp]"
+.venv\Scripts\python -m pytest
+copy .env.example .env
+```
+Everywhere below, read `.venv/bin/tracker` as `.venv\Scripts\tracker` (or run
+`.venv\Scripts\activate` once, then just `tracker ...`). `make test` = `python -m pytest`.
+
+**Mac/Linux:**
+
 ```bash
 make setup
 ```
@@ -45,6 +58,12 @@ used. Fill in the pieces below as you go.
 
 Create a key at console.anthropic.com and set `ANTHROPIC_API_KEY=...`. Cost is tiny: only *new*
 items that pass the keyword prefilter are sent.
+
+### Choose commodities
+
+`COMMODITIES=rice,maize` (default). Each alert carries its commodity: subject `[MAIZE] Auction: …`
+with a 🌽 header, or `[RICE] Tender: …` with 🌾. Wheat and other grains are ignored. Use
+`COMMODITIES=maize` to track only maize.
 
 ### Verify notifications
 
@@ -116,4 +135,5 @@ its item count suddenly collapses (layout change), and when it recovers.
 | `0 items` on a page with content | JS-rendered → enable browser |
 | No alert for an auction you saw | Run `tracker test-source <url>`; see if it's listed and flagged. Without an API key only items mentioning both an auction term and rice are flagged |
 | Telegram `HTTP 400 chat not found` | Send your bot a message first, recheck chat id |
+| Wheat/other grain alerts appear | Shouldn't - report the title; with an API key the AI filters by commodity |
 | Alert shows "(keyword match - please verify)" | No/failed LLM; set `ANTHROPIC_API_KEY` |

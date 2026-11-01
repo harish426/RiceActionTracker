@@ -12,7 +12,7 @@ from tracker.notifiers.messages import format_alert, format_digest, format_healt
 from tracker.notifiers.multi import MultiNotifier
 from tracker.notifiers.telegram import TelegramNotifier
 
-ALERT = Alert(key="k", title="Rice <OMSS> & more", urls=["https://x/a?b=1&c=2"], source_names=["FCI"],
+ALERT = Alert(key="k", commodity="rice", title="Rice <OMSS> & more", urls=["https://x/a?b=1&c=2"], source_names=["FCI"],
               state="Punjab", auction_date="2026-11-12", quantity="5000 MT", summary="Sale", method="llm")
 
 
@@ -89,7 +89,7 @@ def test_email_sends_multipart_with_starttls_and_login():
     smtp = FakeSMTP.instances[0]
     msg = smtp.sent[0]
     assert smtp.tls and smtp.login_args == ("u", "p")
-    assert msg["To"] == "a@x, b@x" and msg["Subject"].startswith("Rice auction")
+    assert msg["To"] == "a@x, b@x" and msg["Subject"].startswith("[RICE]")
     assert msg.get_body(("html",)) is not None and msg.get_body(("plain",)) is not None
 
 
@@ -132,3 +132,11 @@ def test_factory_defaults_to_console_and_builds_configured_channels():
                  email_from="f@x", email_to="a@x, b@x")
     assert [n.name for n in build_notifier(s).notifiers] == ["telegram", "email"]
     assert s.email_recipients == ["a@x", "b@x"]
+
+
+def test_commodity_is_clearly_labelled_in_every_channel():
+    rice = format_alert(ALERT)
+    maize = format_alert(ALERT.model_copy(update={"commodity": "maize", "notice_type": "tender"}))
+    assert rice.subject.startswith("[RICE]") and "🌾" in rice.html and rice.text.startswith("RICE AUCTION")
+    assert maize.subject.startswith("[MAIZE] Tender") and "🌽" in maize.html
+    assert maize.text.startswith("MAIZE TENDER") and "Maize (Corn)" in maize.html

@@ -1,34 +1,90 @@
-# Websites to watch. Add more with:  tracker add-source <url> --name "..." --state "..."
+# Websites to watch. Commodities tracked are set by COMMODITIES in .env (default: rice,maize).
+# Add more with:  tracker add-source <url> --name "..." --state "Telangana"
 # tier 1 = every ~15 min, tier 2 = hourly, tier 3 = every ~6 h  (see docs/DEPLOY_GCP.md)
 #
-# IMPORTANT: URLs below are starting points that could not be verified from the build
-# environment. Check each with:  tracker test-source <url>
-# Then set enabled: true. A source that errors repeatedly triggers a health alert.
+# IMPORTANT: the build environment could not open these sites, so test each one yourself:
+#     tracker test-source <url>
+# Sources marked enabled: false are known/likely sites whose exact notice-page URL still
+# needs confirming - open the site, find the tenders/e-auction page, then put that URL here.
 sources:
+  # ---------------- National ----------------
   - id: fci-home
-    name: "FCI - Food Corporation of India (home)"
+    name: "FCI - Food Corporation of India"
     url: "https://fci.gov.in/"
     tier: 1
-    note: "National body that runs the OMSS rice e-auctions."
+    note: "OMSS rice e-auctions (wheat/rice only; no maize). Find the OMSS/e-auction page for a better URL."
 
-  - id: fci-sales-notices
-    name: "FCI - Sales / OMSS notices"
-    url: "https://fci.gov.in/sales-notice.php"
+  - id: nafed-tenders
+    name: "NAFED - Tenders / e-auctions"
+    url: "https://www.nafed-india.com/tender"
+    tier: 1
+    note: "NAFED runs e-auctions via MSTC; agreed to procure maize from Telangana, so maize sales may follow."
+
+  # ---------------- Telangana ----------------
+  - id: tg-news-markfed
+    name: "Telangana Today - TS Markfed news"
+    url: "https://telanganatoday.com/tag/ts-markfed"
+    state: "Telangana"
+    tier: 2
+    note: "News feed: early signal for MARKFED maize e-auctions/tenders (first maize e-auction reported Aug 2026)."
+
+  - id: tg-news-maize
+    name: "Telangana Today - Maize news"
+    url: "https://telanganatoday.com/tag/maize-procurement"
+    state: "Telangana"
+    tier: 2
+
+  - id: tg-news-civil-supplies
+    name: "Telangana Today - Civil Supplies news"
+    url: "https://telanganatoday.com/tag/civil-supplies-corporation"
+    state: "Telangana"
+    tier: 2
+    note: "Rice/paddy auctions and tenders by TS Civil Supplies Corporation."
+
+  - id: tg-eprocurement
+    name: "Telangana e-Procurement portal"
+    url: "https://tender.telangana.gov.in/"
+    state: "Telangana"
     tier: 1
     enabled: false
-    note: "GUESSED URL - find the real OMSS/e-auction page on fci.gov.in and verify."
+    note: "Official tender portal (often needs JavaScript -> fetch_mode: browser). Verify, then enable."
+    fetch_mode: browser
 
-  - id: dfpd-home
-    name: "Dept. of Food & Public Distribution"
-    url: "https://dfpd.gov.in/"
+  - id: tg-markfed
+    name: "Telangana MARKFED (official site)"
+    url: "https://example.invalid/REPLACE-with-markfed-tenders-page"
+    state: "Telangana"
+    tier: 1
+    enabled: false
+    note: "Official site of Telangana State Cooperative Marketing Federation - add the tenders / e-auction page URL."
+
+  - id: tg-civil-supplies
+    name: "Telangana Civil Supplies Corporation (official site)"
+    url: "https://example.invalid/REPLACE-with-tscsc-tenders-page"
+    state: "Telangana"
+    tier: 1
+    enabled: false
+    note: "Rice (CMR/paddy) sale tenders. Add the tenders page URL."
+
+  - id: tg-marketing
+    name: "Telangana State Agricultural Marketing (mandi / market yards)"
+    url: "https://example.invalid/REPLACE-with-marketing-dept-notices-page"
+    state: "Telangana"
     tier: 2
     enabled: false
-    note: "Policy announcements about OMSS rice sales. Verify before enabling."
+    note: "Market committee notices (Warangal, Nizamabad, Badepally etc. buy/sell maize)."
 
-  - id: punjab-food-supplies
-    name: "Punjab - Food, Civil Supplies & Consumer Affairs"
-    url: "https://foodsuppb.gov.in/"
-    state: "Punjab"
+  # ---------------- Platforms ----------------
+  - id: mstc-ecommerce
+    name: "MSTC e-commerce (hosts NAFED/state e-auctions)"
+    url: "https://www.mstcecommerce.com/"
     tier: 2
     enabled: false
-    note: "Example state source. Verify URL, then enable."
+    note: "Find the e-auction / forthcoming auctions listing page and use that URL."
+
+  - id: enam
+    name: "e-NAM (National Agriculture Market)"
+    url: "https://enam.gov.in/"
+    tier: 3
+    enabled: false
+    note: "Mostly live mandi trading and prices, not notices. Treat as phase 2 (price tracking)."

@@ -8,9 +8,10 @@ Cloud Scheduler (tier cron) ─▶ Cloud Run Job: `tracker run --tier N`
      1 FETCH     LadderFetcher: HTTP → (if page looks JS-rendered) Playwright; PDFs → text
      2 EXTRACT   every <a>, linkless table row, or (fallback) whole-page hash → Candidate
      3 DIFF      fingerprint(url+title) vs. `seen` store → new candidates only
-     4 FILTER    cheap keyword prefilter (auction terms, EN + Indian languages)
-     5 CLASSIFY  Claude forced tool-call → is_rice_auction + fields; keyword fallback
-     6 DEDUPE    alert key = state|date|quantity → same auction on 2 sites = 1 alert
+     4 FILTER    cheap keyword prefilter (auction/sale/tender words, EN + Hindi/Telugu/…)
+     5 CLASSIFY  Claude forced tool-call → relevant? + commodity (rice|maize|other) + type + fields;
+                 keyword fallback (needs action word AND commodity word, word-boundary matched)
+     6 DEDUPE    alert key = commodity|state|date|quantity → same auction on 2 sites = 1 alert
      7 NOTIFY    Telegram + email; failures stay "pending" and retry next run
    health: consecutive failures / item-count collapse / recovery → messages
 ```
@@ -25,7 +26,8 @@ First successful run of a source only **baselines** (stores what's there) so you
 | `config.py` | `Settings` (env/.env) and `sources.yaml` loader |
 | `fetchers/` | `http.py` (httpx+tenacity), `browser.py` (Playwright, optional), `pdf.py`, `ladder.py`, `throttle.py` |
 | `extract.py` | HTML → candidates, site-agnostic |
-| `classify.py` | prefilter, keyword & LLM classifiers, alert keys |
+| `commodities.py` | commodity definitions (rice, maize), multilingual term lists, word-boundary matching |
+| `classify.py` | keyword & LLM classifiers, alert keys |
 | `storage/` | `sqlite.py` (local), `firestore.py` (cloud), same `Storage` protocol |
 | `snapshots.py` | raw page archive: local folder or GCS |
 | `notifiers/` | telegram, email, console, multi fan-out, message formatting |

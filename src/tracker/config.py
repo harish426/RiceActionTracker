@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     browser_enabled: bool = False  # needs: pip install '.[browser]' && playwright install chromium
     pdf_lookup_limit: int = 5  # max PDFs opened per source per run to classify vague links
 
+    commodities: str = "rice,maize"  # comma-separated; known: rice, maize
+
     # --- LLM -----------------------------------------------------------
     anthropic_api_key: str | None = None
     llm_model: str = "claude-haiku-5-5"
@@ -53,6 +55,10 @@ class Settings(BaseSettings):
 
     # --- health --------------------------------------------------------
     failure_alert_threshold: int = 3
+
+    @property
+    def commodity_keys(self) -> list[str]:
+        return [c.strip().lower() for c in self.commodities.split(",") if c.strip()]
 
     @property
     def email_recipients(self) -> list[str]:

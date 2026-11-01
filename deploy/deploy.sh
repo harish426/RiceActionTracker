@@ -60,9 +60,11 @@ deploy() {
   ensure_secret_versions
   gc builds submit --region "$REGION" --config deploy/cloudbuild.yaml \
     --substitutions "_IMAGE=${IMAGE},_WITH_BROWSER=${WITH_BROWSER}" .
-  local env="STORAGE_BACKEND=firestore,SNAPSHOT_BACKEND=gcs,GCS_BUCKET=${BUCKET},GOOGLE_CLOUD_PROJECT=${PROJECT_ID}"
-  env+=",EMAIL_FROM=${EMAIL_FROM},EMAIL_TO=${EMAIL_TO},SMTP_HOST=${SMTP_HOST},SMTP_PORT=${SMTP_PORT},SMTP_USER=${SMTP_USER}"
-  [[ "$WITH_BROWSER" == "1" ]] && env+=",BROWSER_ENABLED=true"
+  # '^@^' makes gcloud split env vars on '@' so COMMODITIES=rice,maize keeps its comma
+  local env="^@^STORAGE_BACKEND=firestore@SNAPSHOT_BACKEND=gcs@GCS_BUCKET=${BUCKET}@GOOGLE_CLOUD_PROJECT=${PROJECT_ID}"
+  env+="@COMMODITIES=${COMMODITIES:-rice,maize}"
+  env+="@EMAIL_FROM=${EMAIL_FROM}@EMAIL_TO=${EMAIL_TO}@SMTP_HOST=${SMTP_HOST}@SMTP_PORT=${SMTP_PORT}@SMTP_USER=${SMTP_USER}"
+  [[ "$WITH_BROWSER" == "1" ]] && env+="@BROWSER_ENABLED=true"
   local sec=""; for s in "${SECRETS[@]}"; do sec+="${s}=${s}:latest,"; done; sec="${sec%,}"
 
   for job in "${!JOBS[@]}"; do

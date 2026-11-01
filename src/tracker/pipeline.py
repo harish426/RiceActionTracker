@@ -7,7 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 
 from tracker import health
-from tracker.classify import Classifier, is_auction_like, mentions_rice, to_alert
+from tracker.classify import Classifier, to_alert
+from tracker.commodities import commodity_hits, is_action_like
 from tracker.config import Settings
 from tracker.extract import extract_candidates
 from tracker.fetchers.base import Fetcher, FetchError
@@ -83,16 +84,17 @@ def _classify_new(deps: Deps, source: Source, cand: Candidate, pdf_budget: list[
     """Prefilter, optionally peek inside vague PDF links, then classify."""
     text = cand.text
     extra = ""
-    if cand.is_pdf and not (is_auction_like(text) and mentions_rice(text)) and pdf_budget[0] > 0:
+    keys = deps.settings.commodity_keys
+    if cand.is_pdf and not (is_action_like(text) and commodity_hits(text, keys)) and pdf_budget[0] > 0:
         pdf_budget[0] -= 1
         try:
             extra = deps.fetcher.fetch_pdf_text(cand.url, source.verify_ssl)[:4000]
         except FetchError:
             extra = ""
-    if not is_auction_like(f"{text} {extra}"):
+    if not is_action_like(f"{text} {extra}"):
         return None
     result = deps.classifier.classify(cand, extra)
-    return result if result.is_rice_auction else None
+    return result if result.is_relevant else None
 
 
 def process_source(deps: Deps, source: Source, alert_existing: bool = False) -> SourceReport:

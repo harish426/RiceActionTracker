@@ -63,7 +63,7 @@ def test_test_source_shows_hits_without_state(tmp_path, monkeypatch):
     env(tmp_path, monkeypatch, YAML)
     respx.get("https://fci.example/n").respond(200, html=fixture_text("fci_notices.html"))
     out = runner.invoke(app, ["test-source", "https://fci.example/n"]).output
-    assert "RICE-AUCTION" in out and "1 rice-auction-like" in out
+    assert "MATCH:rice" in out and "1 matching items" in out
     assert not (tmp_path / "t.db").exists()
 
 

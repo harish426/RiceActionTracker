@@ -15,7 +15,7 @@ Run `make test` after every change. CI runs the same on every push.
 |---|---|
 | `test_extract.py` | link/row extraction, URL resolving, script/nav removal, page-hash fallback |
 | `test_fetchers.py` | HTTP retries/backoff, errors, PDF handling, per-host throttle, JS-page detection, browser fallback ladder |
-| `test_classify.py` | keyword prefilter (incl. Hindi), keyword classifier, Claude classifier with a fake client, LLM-failure fallback, cross-site dedupe keys |
+| `test_classify.py` | keyword prefilter (incl. Hindi/Telugu), rice vs maize detection, word boundaries ('price' ≠ rice), keyword classifier, Claude classifier with a fake client, LLM-failure fallback, cross-site dedupe keys |
 | `test_storage.py` | SQLite **and** Firestore adapters run the *same* tests (Firestore uses an in-memory fake) |
 | `test_notifiers.py` | message formatting/escaping, Telegram, email (fake SMTP), multi-channel fan-out, factory |
 | `test_health.py` | failure thresholds, recovery, layout-change detection |
