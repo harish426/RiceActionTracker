@@ -33,7 +33,7 @@ def _context_for(node) -> str:
 
 def extract_candidates(html: str, base_url: str, source_id: str = "") -> list[Candidate]:
     tree = HTMLParser(html)
-    for bad in tree.css("script, style, noscript, nav, footer"):
+    for bad in tree.css("script, style, noscript"):
         bad.decompose()
 
     found: dict[str, Candidate] = {}

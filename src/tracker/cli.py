@@ -77,11 +77,18 @@ def run(
 
 
 @app.command("test-source")
-def test_source(url: str, verify_ssl: bool = True, limit: int = 40) -> None:
+def test_source(url: str, verify_ssl: bool = True, limit: int = 40,
+                browser: bool = typer.Option(False, help="Render with a headless browser (JS sites)"),
+                save_html: str = typer.Option(None, help="Write the fetched HTML to this file")) -> None:
     """Fetch one URL and show what the tracker would see. Changes nothing, sends nothing."""
     settings = Settings()
-    src = Source(id="adhoc", name="adhoc", url=url, verify_ssl=verify_ssl)
+    if browser:
+        settings.browser_enabled = True
+    src = Source(id="adhoc", name="adhoc", url=url, verify_ssl=verify_ssl,
+                 fetch_mode="browser" if browser else "auto")
     fetched = _fetcher(settings).fetch(src)
+    if save_html:
+        Path(save_html).write_text(fetched.text, encoding="utf-8")
     cands = extract_candidates(fetched.text, fetched.final_url, "adhoc")
     classifier = build_classifier(settings.anthropic_api_key, settings.llm_model)
     from tracker.classify import is_auction_like

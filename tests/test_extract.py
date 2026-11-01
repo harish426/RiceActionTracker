@@ -30,8 +30,9 @@ def test_linkless_table_row_is_candidate():
     assert any("holiday schedule" in c.title for c in cands())
 
 
-def test_nav_removed():
-    assert not any(c.url.endswith("/home") for c in cands())
+def test_nav_links_kept():
+    # Government sites often put real notices/menus inside <nav>, so we do not drop it.
+    assert any(c.url.endswith("/home") for c in cands())
 
 
 def test_no_duplicate_fingerprints():
